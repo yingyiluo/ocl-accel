@@ -3,7 +3,7 @@
 using namespace aocl_utils;
 
 // CL binary name
-constant char *binary_prefix = "channeltest"
+const char *binary_prefix = "channeltest";
 // The set of simultaneous kernels
 enum KERNELS {
   K_WRITER,
@@ -26,6 +26,7 @@ static cl_program program = NULL;
 static cl_int status = 0;
 
 // Function prototypes
+void test();
 bool init();
 void cleanup();
 
@@ -40,7 +41,7 @@ int main(int argc, char **argv) {
   printf("Init complete!\n");
 
   // Allocate host memory
-  N = 50;
+  int N = 50;
   h_inData = (double *)alignedMalloc(sizeof(double) * N);
   h_outData = (double *)alignedMalloc(sizeof(double) * N);
   h_verify = (double *)alignedMalloc(sizeof(double) * N);
@@ -72,26 +73,27 @@ void test() {
   checkError(status, "Failed to allocate output device buffer\n");
 
   // Copy data from host to device
-  status = clEnqueueWriteBuffer(queues[K_READER], d_inData, CL_TRUE, 0, sizeof(double) * N, h_inData, 0, NULL, NULL);
+  status = clEnqueueWriteBuffer(queues[K_WRITER], d_inData, CL_TRUE, 0, sizeof(double) * N, h_inData, 0, NULL, NULL);
   checkError(status, "Failed to copy data to device");
 
   // Set the kernel arguments
   // Read
-  status = clSetKernelArg(kernels[K_READER], 0, sizeof(cl_mem), (void*)&d_inData);
+  status = clSetKernelArg(kernels[K_WRITER], 0, sizeof(cl_mem), (void*)&d_inData);
   checkError(status, "Failed to set kernel_rd arg 0");
   // Write
-  status = clSetKernelArg(kernels[K_WRITER], 0, sizeof(cl_mem), (void*)&d_outData);
+  status = clSetKernelArg(kernels[K_READER], 0, sizeof(cl_mem), (void*)&d_outData);
   checkError(status, "Failed to set kernel_wr arg 0");
 
   double time = getCurrentTimestamp();
+  //cl_event kernel_event;
   //TODO: compare with clEnqueueNDRangeKernel when using channel
-  // READ
-  status = clEnqueueTask(queues[K_READER], kernels[K_READER], 0, NULL, NULL);
-  checkError(status, "Failed to launch kernel_read");
   // Write
   status = clEnqueueTask(queues[K_WRITER], kernels[K_WRITER], 0, NULL, NULL);
+  checkError(status, "Failed to launch kernel_read");
+  // Read
+  status = clEnqueueTask(queues[K_READER], kernels[K_READER], 0, NULL, NULL);
   checkError(status, "Failed to launch kernel_write");
-
+  //clWaitForEvents(1, &kernel_event);
   for(int i=0; i<K_NUM_KERNELS; ++i) {
     status = clFinish(queues[i]);
     checkError(status, "Failed to finish (%d: %s)", i, kernel_names[i]);
@@ -103,8 +105,10 @@ void test() {
   // Copy results from device to host
   status = clEnqueueReadBuffer(queues[0], d_outData, CL_TRUE, 0, sizeof(double) * N, h_outData, 0, NULL, NULL);
   checkError(status, "Failed to copy data from device");
-
-  printf("\tProcessing time = %.4fms\n", (float)(time * 1E3));
+  printf("\nhost\n");
+  for(int i = 0; i < N; i++)
+    printf("%f ", h_outData[i]);
+  printf("\nProcessing time = %.4fms\n", (float)(time * 1E3));
 }
 
 // Set up the context, device, kernels, and buffers...

@@ -3,16 +3,16 @@
 
 #define N 50
 
-channel double DATA_IN;
+channel double DATA; // __attribute__((depth(8)));
 
-kernel void data_in(global double *data_in) {
-  for(int i = 0; i < N; i++) {
-    write_channel_intel(DATA_IN, data_in[i]);
+__kernel void data_in(__global double *data_in) {
+  for(int i = 0; i < N*2; i++) {
+    write_channel_intel(DATA, data_in[i]);
   }
 }
 
-kernel void data_out(global double *data_out) {
+__kernel void data_out(__global double *data_out) {
   for(int i = 0; i < N; i++) {
-    data_out[i] = 2.0 * read_channel_intel(DATA_IN);
+    data_out[i] = 2.0 * read_channel_intel(DATA);
   }
 }

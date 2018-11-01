@@ -2,8 +2,10 @@
 #include "AOCLUtils/aocl_utils.h"
 using namespace aocl_utils;
 
+// quartus version
+int version = 16;
 // CL binary name
-const char *binary_prefix = "bs";
+const char *binary_prefix = "bs_nofence";
 // The set of simultaneous kernels
 enum KERNELS {
   K_WRITER,
@@ -26,7 +28,7 @@ static cl_program program = NULL;
 static cl_int status = 0;
 
 // Function prototypes
-void bs(long N);
+void bs(long N, long M);
 long search_data(double data, long N);
 ulong xorshift128plus(cl_ulong2 *seed);
 bool init();
@@ -40,12 +42,21 @@ cl_mem d_inData, d_outData;
 
 int main(int argc, char **argv) {
   long N = (1 << 28); //16M
+  long M = 1000;
   Options options(argc, argv);
+
+  if(options.has("v")) {
+    version = options.get<int>("v");
+  }
 
   if(options.has("n")) {
     N = options.get<long>("n");
   }
+  if(options.has("m")) {
+    M = options.get<long>("m");
+  }
   printf("Number of elements in the array is set to %ld\n", N);
+  printf("Total data points to search is %ld\n", M);
 
   if (!init())
     return false;
@@ -60,14 +71,14 @@ int main(int argc, char **argv) {
   }
 
   // Test
-  bs(N);
+  bs(N, M);
 
   cleanup();
   return 0;
 }
 
 // Test channel
-void bs(long N) {
+void bs(long N, long M) {
   // Initialize input and produce verification data
   for (long i = 0; i < N; i++) {
     h_inData[i] = (double)i;
@@ -100,15 +111,15 @@ void bs(long N) {
   checkError(status, "Failed to set kernel_wr arg 1");
 
   double time = getCurrentTimestamp();
-  cl_event kernel_event;
+//  cl_event kernel_event;
   //TODO: compare with clEnqueueNDRangeKernel when using channel
   // Write
   status = clEnqueueTask(queues[K_WRITER], kernels[K_WRITER], 0, NULL, NULL);
   checkError(status, "Failed to launch kernel_writer");
   // Search
-  status = clEnqueueTask(queues[K_SEARCH], kernels[K_SEARCH], 0, NULL, &kernel_event);
+  status = clEnqueueTask(queues[K_SEARCH], kernels[K_SEARCH], 0, NULL, NULL);
   checkError(status, "Failed to launch kernel_search");
-  clWaitForEvents(1, &kernel_event);
+  //clWaitForEvents(1, &kernel_event);
   for(int i=0; i<K_NUM_KERNELS; ++i) {
     status = clFinish(queues[i]);
     checkError(status, "Failed to finish (%d: %s)", i, kernel_names[i]);
@@ -122,9 +133,8 @@ void bs(long N) {
   checkError(status, "Failed to copy data from device");
 
   printf("\nVerifying\n");
-  int M = 1000;
   ulong cs = 0;
-  for(int i = 0; i < M; i++) {
+  for(long i = 0; i < M; i++) {
     double target = (double) (xorshift128plus(&seed) % N);
     printf("host target: %f\n", target);
     long pos = search_data(target, N);
@@ -188,10 +198,12 @@ bool init() {
     return false;
 
   // Get the OpenCL platform.
-  // platform = findPlatform("Intel(R) FPGA SDK for OpenCL(TM)");
-  platform = findPlatform("Altera");
+  if(version == 16)
+    platform = findPlatform("Altera");
+  else
+    platform = findPlatform("Intel(R) FPGA SDK for OpenCL(TM)");
   if(platform == NULL) {
-    printf("ERROR: Unable to find Intel(R) FPGA OpenCL platform\n");
+    printf("ERROR: Unable to find OpenCL platform\n");
     return false;
   }
 

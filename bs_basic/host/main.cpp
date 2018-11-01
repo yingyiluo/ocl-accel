@@ -6,13 +6,11 @@ using namespace aocl_utils;
 const char *binary_prefix = "bs";
 // The set of simultaneous kernels
 enum KERNELS {
-  K_WRITER,
-  K_SEARCH,
+  K_BSEARCH,
   K_NUM_KERNELS
 };
 static const char *kernel_names[K_NUM_KERNELS] =
 {
-  "writer",
   "bsearch"
 };
 
@@ -81,34 +79,27 @@ void bs(long N) {
   checkError(status, "Failed to allocate output device buffer\n");
 
   // Copy data from host to device
-  status = clEnqueueWriteBuffer(queues[K_SEARCH], d_inData, CL_TRUE, 0, sizeof(double) * N, h_inData, 0, NULL, NULL);
+  status = clEnqueueWriteBuffer(queues[K_BSEARCH], d_inData, CL_TRUE, 0, sizeof(double) * N, h_inData, 0, NULL, NULL);
   checkError(status, "Failed to copy data to device");
 
   // Set the kernel arguments
-  // Writer
   cl_ulong2 seed;
   seed.x = 5L;
   seed.y = 6L;
-  status = clSetKernelArg(kernels[K_WRITER], 0, sizeof(cl_ulong2), (void*)&seed);
-  checkError(status, "Failed to set kernel_writer arg 0");
-  status = clSetKernelArg(kernels[K_WRITER], 1, sizeof(cl_long), (void*)&N);
-  checkError(status, "Failed to set kernel_writer arg 1");
-  // Search
-  status = clSetKernelArg(kernels[K_SEARCH], 0, sizeof(cl_mem), (void*)&d_inData);
-  checkError(status, "Failed to set kernel_wr arg 0");
-  status = clSetKernelArg(kernels[K_SEARCH], 1, sizeof(cl_mem), (void*)&d_outData);
-  checkError(status, "Failed to set kernel_wr arg 1");
+  status = clSetKernelArg(kernels[K_BSEARCH], 0, sizeof(cl_ulong2), (void*)&seed);
+  checkError(status, "Failed to set kernel arg 0");
+  status = clSetKernelArg(kernels[K_BSEARCH], 1, sizeof(cl_long), (void*)&N);
+  checkError(status, "Failed to set kernel arg 1");
+  status = clSetKernelArg(kernels[K_BSEARCH], 2, sizeof(cl_mem), (void*)&d_inData);
+  checkError(status, "Failed to set kernel arg 2");
+  status = clSetKernelArg(kernels[K_BSEARCH], 3, sizeof(cl_mem), (void*)&d_outData);
+  checkError(status, "Failed to set kernel arg 3");
 
   double time = getCurrentTimestamp();
-  cl_event kernel_event;
-  //TODO: compare with clEnqueueNDRangeKernel when using channel
   // Write
-  status = clEnqueueTask(queues[K_WRITER], kernels[K_WRITER], 0, NULL, NULL);
+  status = clEnqueueTask(queues[K_BSEARCH], kernels[K_BSEARCH], 0, NULL, NULL);
   checkError(status, "Failed to launch kernel_writer");
   // Search
-  status = clEnqueueTask(queues[K_SEARCH], kernels[K_SEARCH], 0, NULL, &kernel_event);
-  checkError(status, "Failed to launch kernel_search");
-  clWaitForEvents(1, &kernel_event);
   for(int i=0; i<K_NUM_KERNELS; ++i) {
     status = clFinish(queues[i]);
     checkError(status, "Failed to finish (%d: %s)", i, kernel_names[i]);
@@ -118,7 +109,7 @@ void bs(long N) {
   time = getCurrentTimestamp() - time;
 
   // Copy results from device to host
-  status = clEnqueueReadBuffer(queues[K_SEARCH], d_outData, CL_TRUE, 0, sizeof(ulong), h_outData, 0, NULL, NULL);
+  status = clEnqueueReadBuffer(queues[K_BSEARCH], d_outData, CL_TRUE, 0, sizeof(ulong), h_outData, 0, NULL, NULL);
   checkError(status, "Failed to copy data from device");
 
   printf("\nVerifying\n");

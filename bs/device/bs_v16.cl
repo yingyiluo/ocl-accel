@@ -14,8 +14,8 @@ typedef struct __attribute__((packed)) __attribute((aligned(16))) r {
 
 #define M 1000
 
-channel context CONTEXT_QUEUE __attribute__((depth(16)));
-channel context PROC_QUEUE __attribute__((depth(16)));
+channel context CONTEXT_QUEUE __attribute__((depth(32)));
+channel context PROC_QUEUE __attribute__((depth(128)));
 
 ulong xorshift128plus(const ulong2* s)
 {
@@ -33,11 +33,12 @@ __kernel void bsearch(__global double *restrict data_array,
   ulong cs = 0;
   result rs[M];
   while (i < M) {
-    bool valid;
-    context ct = read_channel_nb_altera(CONTEXT_QUEUE, &valid); //fifo may be empty with no data to read
-    if(!valid) {
-      ct = read_channel_nb_altera(PROC_QUEUE, &valid);
-      if(!valid)
+    bool valid1;
+    context ct = read_channel_nb_altera(PROC_QUEUE, &valid1); //fifo may be empty with no data to read
+    if(!valid1) {
+      bool valid2;
+      ct = read_channel_nb_altera(CONTEXT_QUEUE, &valid2);
+      if(!valid2)
         continue;
     }
     long interval = ct.ul - ct.ll;

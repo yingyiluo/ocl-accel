@@ -12,9 +12,10 @@ typedef struct __attribute__((packed)) __attribute((aligned(16))) r {
   long pos;
 } result;
 
-#define M 5
+#define M 1000
 
-channel context CONTEXT_QUEUE __attribute__((depth(16)));
+channel context CONTEXT_QUEUE __attribute__((depth(32)));
+channel context PROC_QUEUE __attribute__((depth(128)));
 
 ulong xorshift128plus(const ulong2* s)
 {
@@ -32,24 +33,34 @@ __kernel void bsearch(__global double *restrict data_array,
   ulong cs = 0;
   result rs[M];
   while (i < M) {
-    context ct = read_channel_intel(CONTEXT_QUEUE);
+    bool valid1;
+    context ct = read_channel_nb_intel(PROC_QUEUE, &valid1); //fifo may be empty with no data to read
+    mem_fence(CLK_CHANNEL_MEM_FENCE);
+    if(!valid1) {
+      bool valid2;
+      ct = read_channel_nb_intel(CONTEXT_QUEUE, &valid2);
+      if(!valid2)
+        continue;
+    }
     long interval = ct.ul - ct.ll;
-    long mid = ct.ll + (ct.ul - ct.ll) >> 1;
+    long mid = ct.ll + ((ct.ul - ct.ll) / 2);
     if(interval <= 1) {
       rs[i] = (result) {ct.data, ct.ll};
       cs ^= ct.ll;
       i++;
-      printf("inc i, d: %f, p: %ld\n", ct.data, ct.ll);
+      //printf("inc i %d, d: %f, p: %ld\n", i, ct.data, ct.ll);
       continue;
     }
     long d = data_array[mid];
+    // mem_fence(CLK_GLOBAL_MEM_FENCE);
     if(d > ct.data)
       ct.ul = mid;
     else
       ct.ll = mid;
-    printf("ct: %f, %ld, %ld\n", ct.data, ct.ll, ct.ul);
+     //printf("ct: %f, %ld, %ld\n", ct.data, ct.ll, ct.ul);
     // Intel restriction: multiple kernels cannot write/read to the same channel simultaneously.
-    write_channel_intel(CONTEXT_QUEUE, ct);
+    write_channel_intel(PROC_QUEUE, ct); // fifo may be too full to write new data
+    // mem_fence(CLK_CHANNEL_MEM_FENCE);
   }
   *checksum = cs;
 }
@@ -60,7 +71,7 @@ __kernel void writer(const ulong2 seed,
   double target;
   for(i = 0; i < M; i++) {
     target = (double) (xorshift128plus(&seed) % len); //maxValue = last data + 1
-    printf("target: %f\n", target);
+    // printf("i %d, target: %f\n", i, target);
     context ct = {target, 0, len - 1};
     write_channel_intel(CONTEXT_QUEUE, ct);         
   }

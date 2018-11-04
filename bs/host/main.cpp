@@ -5,7 +5,7 @@ using namespace aocl_utils;
 // quartus version
 int version = 16;
 // CL binary name
-const char *binary_prefix = "bs_nofence";
+const char *binary_prefix = "bs";
 // The set of simultaneous kernels
 enum KERNELS {
   K_WRITER,

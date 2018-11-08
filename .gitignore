@@ -1,6 +1,7 @@
 *.aocx
 *.aoco
 bin/
+debug/
 *.output
 *.error
 *.cobaltlog

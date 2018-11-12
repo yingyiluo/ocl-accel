@@ -1,6 +1,7 @@
 *.aocx
 *.aoco
 bin/
+bin_NDR/
 debug/
 *.output
 *.error

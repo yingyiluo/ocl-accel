@@ -34,7 +34,6 @@ typedef struct{
 	int hash_bins;
 	int particles;
 	int simulation_method;
-	string aocx_name;
 } Inputs;
 
 #define UNIONIZED 0

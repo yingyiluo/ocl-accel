@@ -282,6 +282,7 @@ void run_simulation(Inputs in, double *energy, int *energy_grid_xs,
 	// =====================================================================
 	status = clEnqueueReadBuffer(queues[K_CAL_MACRO_XS], d_vhash, CL_TRUE, 0, 1024 * sizeof(unsigned long), vhash, 0, NULL, NULL);
 	checkError(status, "Failed to read buffer from kernel cal_macro_xs");
+	qsort(vhash, 1024, sizeof(unsigned long), ulong_compare);
 
 	// Final Hash Step
 	vhash[0] = vhash[0] % 1000000;
@@ -293,6 +294,8 @@ void run_simulation(Inputs in, double *energy, int *energy_grid_xs,
 	printf("\nVerifying\n");
 	unsigned long vhash_verify[1024];
 	run_event_based_simulation(in, energy_grid, nuclide_grids, num_nucs, mats, concs, 0, vhash_verify);
+	qsort(vhash_verify, 1024, sizeof(unsigned long), ulong_compare);
+
 	// vhash_verify = vhash_verify % 1000000;
 	bool pass = true;
 	for(int k = 0; k < 1024; k++) {

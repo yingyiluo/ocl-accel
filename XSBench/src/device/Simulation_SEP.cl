@@ -80,4 +80,4 @@ __kernel void simulation(int lookups, long n_isotopes, long n_gridpoints)
 }
 
 #include "GridSearch_8b_512.cl"
-#include "CalculateXS.cl"
+#include "CalculateXS_SEP.cl"

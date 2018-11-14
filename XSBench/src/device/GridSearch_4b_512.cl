@@ -1,4 +1,3 @@
-#include "DataTypes.h"
 #pragma OPENCL EXTENSION cl_intel_channels : enable
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 

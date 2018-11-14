@@ -34,6 +34,7 @@ typedef struct{
 	int hash_bins;
 	int particles;
 	int simulation_method;
+	string aocx_name;
 } Inputs;
 
 #define UNIONIZED 0
@@ -54,6 +55,8 @@ NuclideGridPoint ** gpmatrix(size_t m, size_t n);
 void gpmatrix_free( NuclideGridPoint ** M );
 
 int NGP_compare( const void * a, const void * b );
+
+int ulong_compare( const void * a, const void * b );
 
 void generate_grids( NuclideGridPoint ** nuclide_grids,
                      long n_isotopes, long n_gridpoints );

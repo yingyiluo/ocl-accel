@@ -40,6 +40,12 @@ int NGP_compare( const void * a, const void * b )
 		return 0;
 }
 
+// Compare function for two ulong points. Used for sorting
+int ulong_compare( const void * a, const void * b )
+{
+	return ( *(unsigned long *) a - *(unsigned long *) b);
+}
+
 // RNG Used for Verification Option.
 // This one has a static seed (must be set manually in source).
 // Park & Miller Multiplicative Conguential Algorithm

@@ -24,7 +24,7 @@ SearchContext pop(__local SearchContext *restrict cbuf, ushort4 *restrict cbuf_m
 
 __kernel void grid_search(int lookups, __global double *restrict A) {
   uint i = 0;
-  __local SearchContext cbuf[BANK_SIZE][BUFFER_SIZE]  __attribute__((doublepump, bank_bits(8, 9, 10), bankwidth(32)));;
+  __local SearchContext cbuf[BANK_SIZE][BUFFER_SIZE]  __attribute__((doublepump, bank_bits(8, 9, 10), bankwidth(32)));
   ushort4 cbuf_meta[BANK_SIZE]; 
   #pragma unroll
   for (int n = 0; n < BANK_SIZE; n++)

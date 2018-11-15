@@ -228,11 +228,11 @@ Inputs read_CLI( int argc, char * argv[] )
 	// defaults to 11303 (corresponding to H-M Large benchmark)
 	input.n_gridpoints = 11303;
 
-	// defaults to 500,000
-	input.particles = 500000;
+	// defaults to 1
+	input.particles = 1;
 	
-	// defaults to 34
-	input.lookups = 34;
+	// defaults to 17000000
+	input.lookups = 17000000;
 	
 	// default to unionized grid
 	input.grid_type = UNIONIZED;
@@ -288,8 +288,11 @@ Inputs read_CLI( int argc, char * argv[] )
 			else
 				print_CLI_error();
 
-			if( strcmp(sim_type, "history") == 0 )
+			if( strcmp(sim_type, "history") == 0 ) {
 				input.simulation_method = HISTORY_BASED;
+				input.lookups = 34;
+				input.particles = 500000;
+			}
 			else if( strcmp(sim_type, "event") == 0 )
 			{
 				input.simulation_method = EVENT_BASED;

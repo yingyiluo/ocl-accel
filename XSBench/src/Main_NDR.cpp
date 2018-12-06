@@ -194,10 +194,10 @@ void run_simulation(Inputs in, double *energy, int *energy_grid_xs,
 	status = clEnqueueWriteBuffer(queues[K_GRIDSEARCH], d_energy, CL_TRUE, 0, n_iso_grid * sizeof(double), energy, 0, NULL, NULL);
 	checkError(status, "Failed to enqueue write buffer.\n");
 
-	status = clEnqueueWriteBuffer(queues[K_CAL_MACRO_XS], d_num_nucs, CL_TRUE, 0, 12 * sizeof(int), num_nucs, 0, NULL, NULL);
+	status = clEnqueueWriteBuffer(queues[K_CAL_MACRO_XS], d_num_nucs, CL_TRUE, 0, 12 * sizeof(cl_int), num_nucs, 0, NULL, NULL);
 	checkError(status, "Failed to enqueue write buffer.\n");
 
-	status = clEnqueueWriteBuffer(queues[K_CAL_MACRO_XS], d_mats, CL_TRUE, 0, total_nucs * sizeof(int), *mats, 0, NULL, NULL);
+	status = clEnqueueWriteBuffer(queues[K_CAL_MACRO_XS], d_mats, CL_TRUE, 0, total_nucs * sizeof(cl_int), *mats, 0, NULL, NULL);
 	checkError(status, "Failed to enqueue write buffer.\n");
 	
 	status = clEnqueueWriteBuffer(queues[K_CAL_MACRO_XS], d_concs, CL_TRUE, 0, total_nucs * sizeof(double), *concs, 0, NULL, NULL);

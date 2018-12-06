@@ -75,7 +75,7 @@ __kernel void simulation(int lookups, long n_isotopes, long n_gridpoints)
 		int mat      = pick_mat(&seed); 
 		
 		SearchContext sc = {p_energy, 0, energy_grid_len - 1, mat};
-    		write_channel_intel(SC_QUEUE, sc);
+    	write_channel_intel(SC_QUEUE, sc);
     }
 }
 

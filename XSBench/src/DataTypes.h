@@ -17,6 +17,11 @@ typedef struct __attribute__((packed)) __attribute__((aligned(32))) {
   int mat;
 } SearchContext;
 
+typedef struct __attribute__((aligned(16))) { 
+  double data; 
+  long index; 
+} BSCache;
+
 typedef struct __attribute__((packed)) __attribute((aligned(32))) {
   double energy;
   long idx;

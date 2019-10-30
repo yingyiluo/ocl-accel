@@ -1,0 +1,1 @@
+aoc --report -g -v device/Simulation.cl -o bin/Simulation.aocx

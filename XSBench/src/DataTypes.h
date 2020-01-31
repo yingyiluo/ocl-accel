@@ -10,6 +10,15 @@ typedef struct __attribute__((packed)) __attribute__((aligned(64))) {
 	double nu_fission_xs;
 } NuclideGridPoint;
 
+typedef struct __attribute__((packed)) __attribute__((aligned(1024))){
+  double energy;
+  short xs_ptrs[355];
+} GridPoint_Array;
+
+typedef struct __attribute__((packed)) __attribute__((aligned(1024))){
+  short xs_ptrs[355];
+} GridPointXS;
+
 typedef struct __attribute__((packed)) __attribute__((aligned(32))) {
   double energy;
   long ll;
@@ -21,6 +30,17 @@ typedef struct __attribute__((aligned(16))) {
   double data; 
   long index; 
 } BSCache;
+
+
+typedef union data {
+long l;
+double d;
+} l_to_d;
+
+typedef struct __attribute__((aligned(16))) { 
+  l_to_d data; 
+  long index; 
+} BSCacheUnion;
 
 typedef struct __attribute__((packed)) __attribute((aligned(32))) {
   double energy;

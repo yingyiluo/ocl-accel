@@ -1,6 +1,7 @@
 #ifndef __XSBENCH_HEADER_H__
 #define __XSBENCH_HEADER_H__
-
+#include "CL/opencl.h"
+#include "AOCLUtils/aocl_utils.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
@@ -138,4 +139,46 @@ void run_simulation(Inputs in, double *energy, int *energy_grid_xs,
 					NuclideGridPoint **nuclide_grids,
 					int *num_nucs, int **mats, double **concs, 
 					unsigned long *vhash_result);
+
+void run_simulation_v2(Inputs in, GridPoint_Array *energy_grid_array,
+          GridPoint *energy_grid,
+          NuclideGridPoint **nuclide_grids,
+          int *num_nucs, int **mats, double **concs, 
+          unsigned long *vhash_result);
+
+void run_simulation_v3(Inputs in, double *energy, GridPointXS *energy_grid_xs,
+					GridPoint *energy_grid,
+					NuclideGridPoint **nuclide_grids,
+					int *num_nucs, int **mats, double **concs, 
+					unsigned long *vhash_result);
+
+void run_simulation_grid_sep(Inputs in, double *energy, GridPointXS *energy_grid_xs,
+					GridPoint *energy_grid,
+					NuclideGridPoint **nuclide_grids,
+					int *num_nucs, int **mats, double **concs, 
+					unsigned long *vhash_result);
+
+void run_simulation_d16(Inputs in, double *energy, cl_int16 *energy_grid_xs,
+		GridPoint *energy_grid,
+		NuclideGridPoint **nuclide_grids, 
+		int *num_nucs, int **mats, double **concs, 
+		unsigned long *vhash);
+
+void run_simulation_d8(Inputs in, double *energy, cl_int8 *energy_grid_xs,
+		GridPoint *energy_grid,
+		NuclideGridPoint **nuclide_grids, 
+		int *num_nucs, int **mats, double **concs, 
+		unsigned long *vhash);
+
+void run_simulation_d4(Inputs in, double *energy, cl_int4 *energy_grid_xs,
+		GridPoint *energy_grid,
+		NuclideGridPoint **nuclide_grids, 
+		int *num_nucs, int **mats, double **concs, 
+		unsigned long *vhash);
+
+void run_simulation_d2(Inputs in, double *energy, cl_int2 *energy_grid_xs,
+		GridPoint *energy_grid,
+		NuclideGridPoint **nuclide_grids, 
+		int *num_nucs, int **mats, double **concs, 
+		unsigned long *vhash);
 #endif

@@ -13,13 +13,6 @@ VERIFY      = yes
 BINARY_DUMP = no
 BINARY_READ = no
 
-ifeq ($(wildcard $(ALTERAOCLSDKROOT)),)
-$(error Set ALTERAOCLSDKROOT to the root directory of the Intel(R) FPGA SDK for OpenCL(TM) software installation)
-endif
-ifeq ($(wildcard $(ALTERAOCLSDKROOT)/host/include/CL/opencl.h),)
-$(error Set ALTERAOCLSDKROOT to the root directory of the Intel(R) FPGA SDK for OpenCL(TM) software installation.)
-endif
-
 #===============================================================================
 # Program name & source code list
 #===============================================================================
@@ -29,10 +22,10 @@ INCS := $(wildcard *.h)
 INC_DIRS := ../../common/inc
 COMMON_SRC := $(wildcard ../../common/src/AOCLUtils/*.cpp)
 SRCS = \
-Main.cpp \
+main_d8_CacheInKernel.cpp \
 io.c \
-Simulation.c \
-CalculateXS.c \
+Simulation_float.c \
+CalculateXS_float.c \
 GridInit.c \
 XSutils.cpp \
 Materials.cpp

@@ -7,7 +7,7 @@
 using namespace aocl_utils;
 
 // CL binary name
-const char *binary_prefix = "debug";
+const char *binary_prefix = "XSBench";
 //const char *binary_prefix = "Simulation_10bsc_nochannel_nounroll";
 //const char *binary_prefix = "Simulation_vecidx_skip_d16"; //_noprofile";
 // The set of simultaneous kernels
